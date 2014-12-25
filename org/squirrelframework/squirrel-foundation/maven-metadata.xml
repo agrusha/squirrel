@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.squirrelframework</groupId>
+  <artifactId>squirrel-foundation</artifactId>
+  <versioning>
+    <versions>
+      <version>0.3.6-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20141225161232</lastUpdated>
+  </versioning>
+</metadata>
