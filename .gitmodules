@@ -1,0 +1,3 @@
+[submodule "squirrel-foundation/repo"]
+	path = squirrel-foundation/repo
+	url = git@github.com:agrusha/squirrel.git
