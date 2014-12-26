@@ -198,10 +198,15 @@
         </profile>
     </profiles>
     <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Staging Repo</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+        </repository>
         <snapshotRepository>
-            <id>my-own-repo</id>
-            <name>My Own Repo</name>
-            <url>file://${project.basedir}/repo/</url>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Nexus Snapshot Repo</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
