@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.squirrelframework</groupId>
     <artifactId>squirrel-foundation</artifactId>
-    <version>0.3.4-SNAPSHOT</version>
+    <version>0.3.4-android</version>
     <packaging>bundle</packaging>
     <name>squirrel foundation</name>
     <description>foundation module of squirrel framework which provided event driven infrastructure and a finite state machine implementation.</description>
@@ -198,10 +198,10 @@
         </profile>
     </profiles>
     <distributionManagement>
-        <snapshotRepository>
+        <repository>
             <id>my-own-repo</id>
             <name>My Own Repo</name>
             <url>file://${project.basedir}/repo/</url>
-        </snapshotRepository>
+        </repository>
     </distributionManagement>
 </project>
