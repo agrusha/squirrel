@@ -15,3 +15,5 @@
 *.war
 *.ear
 data.sqr
+
+squirrel-foundation/HierarchicalStateMachine.dot
