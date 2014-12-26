@@ -3,10 +3,12 @@
   <groupId>org.squirrelframework</groupId>
   <artifactId>squirrel-foundation</artifactId>
   <versioning>
+    <release>0.3.4-android</release>
     <versions>
       <version>0.3.6-SNAPSHOT</version>
       <version>0.3.4-SNAPSHOT</version>
+      <version>0.3.4-android</version>
     </versions>
-    <lastUpdated>20141226121705</lastUpdated>
+    <lastUpdated>20141226123822</lastUpdated>
   </versioning>
 </metadata>
