@@ -71,6 +71,12 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
         S lastActiveChildStateOf(S parentStateId);
 
         /**
+         *
+         * @return start context of state machine
+         */
+        C startContext();
+
+        /**
          * @return all the active parent states
          */
         Collection<S> activeParentStates();
@@ -143,15 +149,12 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          */
         Collection<S> linkedStates();
         
-        Map<S, ImmutableState<T, S, E, C>> orginalStates();
+        Map<S, ImmutableState<T, S, E, C>> originalStates();
 
         Reader<? extends StateMachine<?, S, E, C>, S, E, C> linkedStateDataOf(S linkedState);
     }
 
     public interface Writer<T extends StateMachine<T, S, E, C>, S, E, C> extends Serializable {
-        /**
-         * @return state machine identifier
-         */
         void identifier(String id);
 
         /**
@@ -173,7 +176,13 @@ public interface StateMachineData<T extends StateMachine<T, S, E, C>, S, E, C> e
          * 
          * @param initialStateId
          */
-        void initalState(S initialStateId);
+        void initialState(S initialStateId);
+
+        /**
+         * Write start context of state machine
+         * @param context start context of state machine
+         */
+        void startContext(C context);
 
         /**
          * Set last active child state of parent state

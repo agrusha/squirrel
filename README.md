@@ -1,6 +1,8 @@
 squirrel-foundation  
 ========
 
+[![Join the chat at https://gitter.im/hekailiang/squirrel](https://badges.gitter.im/hekailiang/squirrel.svg)](https://gitter.im/hekailiang/squirrel?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is it?  
 Just like the squirrel, a **small**, **agile**, **smart**, **alert** and **cute** animal, squirrel-foundation is aimed to provide a **lightweight**, highly **flexible** and **extensible**, **diagnosable**, **easy use** and **type safe** Java state machine implementation for enterprise usage.  
 
@@ -17,7 +19,7 @@ Latest Released Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.5</version>
+  	<version>0.3.8</version>
 </dependency>
 ``` 
 
@@ -26,7 +28,7 @@ Latest Snapshot Version:
 <dependency>
 	<groupId>org.squirrelframework</groupId>
   	<artifactId>squirrel-foundation</artifactId>
-  	<version>0.3.6-SNAPSHOT</version>
+  	<version>0.3.9-SNAPSHOT</version>
 </dependency>
 ``` 
 
@@ -423,8 +425,9 @@ Both API and annotation are supported to define history type of state. e.g.
 	```
 or
 	```java  
-	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)
-	```
+	@State(parent="A", name="A1", entryCallMethod="enterA1", exitCallMethod="exitA1", historyType=HistoryType.DEEP)  
+	```  
+**Note:** Before 0.3.7, user need to define "HistoryType.DEEP" for each level of historical state, which is not quite convenient.(Thanks to [Voskuijlen](https://github.com/Voskuijlen) to provide solution [Issue33](https://github.com/hekailiang/squirrel/issues/33)). Now user only define "HistoryType.DEEP" at the top level of historical state, and all its children state historical information will be remembered.
 
 * **Transition Types**  
 According to the UML specification, a transition may be one of these three kinds:    

@@ -101,7 +101,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     void prePostConstruct(S initialStateId, Map<S, ? extends ImmutableState<T, S, E, C>> states,
             StateMachineConfiguration configuration, Runnable cb) {
         data = FSM.newStateMachineData(states);
-        data.write().initalState(initialStateId);
+        data.write().initialState(initialStateId);
         data.write().currentState(null);
         data.write().identifier(configuration.getIdProvider().get());
         
@@ -140,9 +140,9 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         }
     }
     
-    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> orignalData, 
+    private boolean processEvent(E event, C context, StateMachineData<T, S, E, C> originalData,
             ActionExecutionService<T, S, E, C> executionService, boolean isDataIsolateEnabled) {
-        StateMachineData<T, S, E, C> localData = orignalData;
+        StateMachineData<T, S, E, C> localData = originalData;
         ImmutableState<T, S, E, C> fromState = localData.read().currentRawState();
         S fromStateId = fromState.getStateId(), toStateId = null;
         try {
@@ -151,8 +151,8 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
             
             if(isDataIsolateEnabled) {
                 // use local data to isolation transition data write
-                localData = FSM.newStateMachineData(orignalData.read().orginalStates());
-                localData.dump(orignalData.read());
+                localData = FSM.newStateMachineData(originalData.read().originalStates());
+                localData.dump(originalData.read());
             }
             
             TransitionResult<T, S, E, C> result = FSM.newResult(false, fromState, null);
@@ -167,7 +167,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 localData.write().currentState(toStateId);
                 if(isDataIsolateEnabled) { 
                     // import local data after transition accepted
-                    orignalData.dump(localData.read());
+                    originalData.dump(localData.read());
                 }
                 fireEvent(new TransitionCompleteEventImpl<T, S, E, C>(fromStateId, toStateId, 
                         event, context, getThis()));
@@ -385,7 +385,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     protected void afterTransitionCausedException(S fromState, S toState, E event, C context) {
         if(getLastException().getTargetException()!=null)
-            getLastException().getTargetException().printStackTrace();
+            logger.error("Transition caused exception", getLastException().getTargetException());
         throw getLastException();
     }
     
@@ -534,8 +534,10 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         if(isStarted()) {
             return;
         }
-        setStatus(StateMachineStatus.IDLE);
+
+        setStatus(StateMachineStatus.BUSY);
         internalStart(context, data, executor);
+        setStatus(StateMachineStatus.IDLE);
         processEvents();
     }
     
@@ -549,6 +551,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         ImmutableState<T, S, E, C> historyState = initialRawState.enterByHistory(stateContext);
         executionService.execute();
         localData.write().currentState(historyState.getStateId());
+        localData.write().startContext(context);
         fireEvent(new StartEventImpl<T, S, E, C>(getThis()));
     }
     
@@ -704,7 +707,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
         readLock.lock();
         try {
             StateMachineData<T, S, E, C> savedData = 
-                    FSM.newStateMachineData(data.read().orginalStates());
+                    FSM.newStateMachineData(data.read().originalStates());
             savedData.dump(data.read());
             
             // process linked state if any
@@ -968,7 +971,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
                 parameterValues.add(((TransitionCompleteEvent<T, S, E, C>)event).getTargetState());
                 isTargetStateSet = true;
             } else if(!isTargetStateSet && event instanceof TransitionExceptionEvent && 
-                    parameterType.isAssignableFrom(typeOfState()) && !isTargetStateSet) {
+                    parameterType.isAssignableFrom(typeOfState())) {
                 parameterValues.add(((TransitionExceptionEvent<T, S, E, C>)event).getTargetState());
                 isTargetStateSet = true;
             } else if(!isEventSet && parameterType.isAssignableFrom(typeOfEvent())) {
@@ -1218,8 +1221,14 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     public void addTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
         addListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
     }
+
+    @Override
+    public void removeTransitionDeclinedListener(TransitionDeclinedListener<T, S, E, C> listener) {
+        removeListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
+    }
     
     @Override
+    @Deprecated
     public void removeTransitionDecleindListener(TransitionDeclinedListener<T, S, E, C> listener) {
         removeListener(TransitionDeclinedEvent.class, listener, TransitionDeclinedListener.METHOD);
     }
@@ -1231,7 +1240,7 @@ public abstract class AbstractStateMachine<T extends StateMachine<T, S, E, C>, S
     
     @Override
     public void removeTransitionEndListener(TransitionEndListener<T, S, E, C> listener) {
-        removeListener(TransitionEndListener.class, listener, TransitionEndListener.METHOD);
+        removeListener(TransitionEndEvent.class, listener, TransitionEndListener.METHOD);
     }
     
     @Override

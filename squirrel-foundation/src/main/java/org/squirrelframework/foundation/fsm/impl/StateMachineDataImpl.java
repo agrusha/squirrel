@@ -2,6 +2,7 @@ package org.squirrelframework.foundation.fsm.impl;
 
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -9,9 +10,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.squirrelframework.foundation.fsm.ImmutableState;
-import org.squirrelframework.foundation.fsm.StateMachine;
-import org.squirrelframework.foundation.fsm.StateMachineData;
+import org.squirrelframework.foundation.fsm.*;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -47,6 +46,8 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     
     private String identifier;
 
+    private Object startContext;
+
     private final transient Map<S, ImmutableState<T, S, E, C>> states;
 
     private Map<S, StateMachineData.Reader<? extends StateMachine<?, S, E, C>, S, E, C>> linkStateDataStore;
@@ -60,7 +61,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
-    public Map<S, ImmutableState<T, S, E, C>> orginalStates() {
+    public Map<S, ImmutableState<T, S, E, C>> originalStates() {
         if (states == null) {
             return Collections.emptyMap();
         }
@@ -76,6 +77,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         eventType = null;
         contextType = null;
         identifier = null;
+        startContext = null;
         if(lastActiveChildStateStore!=null) {
             lastActiveChildStateStore.clear();
         }
@@ -99,7 +101,9 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
         this.write().identifier(src.identifier());
         this.write().currentState(src.currentState());
         this.write().lastState(src.lastState());
-        this.write().initalState(src.initialState());
+        this.write().initialState(src.initialState());
+        // write start context of state machine
+        this.write().startContext(src.startContext());
 
         for (S state : src.activeParentStates()) {
             S lastActiveChildState = src.lastActiveChildStateOf(state);
@@ -149,8 +153,14 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
-    public void initalState(S initialStateId) {
+    public void initialState(S initialStateId) {
         this.initialState = initialStateId;
+    }
+
+    @Override
+    public void startContext(C context) {
+        if(context!=null && context instanceof Serializable)
+            startContext = context;
     }
 
     @Override
@@ -218,6 +228,11 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     }
 
     @Override
+    public C startContext() {
+        return (C)startContext;
+    }
+
+    @Override
     public Collection<S> activeParentStates() {
         return Collections.unmodifiableCollection(lastActiveChildStateStore.keySet());
     }
@@ -242,7 +257,7 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
     @Override
     public ImmutableState<T, S, E, C> rawStateFrom(S stateId) {
         if(stateId==null) return null;
-        ImmutableState<T, S, E, C> rawState = orginalStates().get(stateId);
+        ImmutableState<T, S, E, C> rawState = originalStates().get(stateId);
         return rawState!=null ? rawState.getThis() : null;
     }
 
@@ -297,12 +312,12 @@ public class StateMachineDataImpl<T extends StateMachine<T, S, E, C>, S, E, C>
 
     @Override
     public Collection<ImmutableState<T, S, E, C>> rawStates() {
-        return Collections.unmodifiableCollection(orginalStates().values());
+        return Collections.unmodifiableCollection(originalStates().values());
     }
 
     @Override
     public Collection<S> states() {
-        return Collections.unmodifiableCollection(orginalStates().keySet());
+        return Collections.unmodifiableCollection(originalStates().keySet());
     }
 
     @Override
